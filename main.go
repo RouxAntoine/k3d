@@ -5,7 +5,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	run "github.com/rancher/k3d/cli"
 	"github.com/rancher/k3d/version"
@@ -27,7 +27,7 @@ func main() {
 	app.Version = version.GetVersion()
 
 	// commands that you can execute
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		{
 			// check-tools verifies that docker is up and running
 			Name:    "check-tools",
@@ -40,16 +40,16 @@ func main() {
 			Name:  "shell",
 			Usage: "Start a subshell for a cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "Set a name for the cluster",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "command, c",
 					Usage: "Run a shell command in the context of the cluster",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "shell, s",
 					Value: "auto",
 					Usage: "which shell to use. One of [auto, bash, zsh]",
@@ -63,88 +63,88 @@ func main() {
 			Aliases: []string{"c"},
 			Usage:   "Create a single- or multi-node k3s cluster in docker containers",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "Set a name for the cluster",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "volume, v",
 					Usage: "Mount one or more volumes into every node of the cluster (Docker notation: `source:destination`)",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					// TODO: remove publish/add-port soon, to clean up
 					Name:  "port, p, publish, add-port",
 					Usage: "Publish k3s node ports to the host (Format: `-p [ip:][host-port:]container-port[/protocol]@node-specifier`, use multiple options to expose more ports)",
 				},
-				cli.IntFlag{
+				&cli.IntFlag{
 					Name:  "port-auto-offset",
 					Value: 0,
 					Usage: "Automatically add an offset (* worker number) to the chosen host port when using `--publish` to map the same container-port from multiple k3d workers to the host",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "api-port, a",
 					Value: "6443",
 					Usage: "Specify the Kubernetes cluster API server port (Format: `-a [host:]port`",
 				},
-				cli.IntFlag{
+				&cli.IntFlag{
 					Name:  "wait, t",
 					Value: -1,
 					Usage: "Wait for a maximum of `TIMEOUT` seconds (>= 0) for the cluster to be ready and rollback if it doesn't come up in time. Disabled by default (-1).",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "image, i",
 					Usage: "Specify a k3s image (Format: <repo>/<image>:<tag>)",
 					Value: fmt.Sprintf("%s:%s", defaultK3sImage, version.GetK3sVersion()),
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "server-arg, x",
 					Usage: "Pass an additional argument to k3s server (new flag per argument)",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "agent-arg",
 					Usage: "Pass an additional argument to k3s agent (new flag per argument)",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "env, e",
 					Usage: "Pass an additional environment variable (new flag per variable)",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "label, l",
 					Usage: "Add a docker label to node container (Format: `key[=value][@node-specifier]`, new flag per label)",
 				},
-				cli.IntFlag{
+				&cli.IntFlag{
 					Name:  "workers, w",
 					Value: 0,
 					Usage: "Specify how many worker nodes you want to spawn",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "auto-restart",
 					Usage: "Set docker's --restart=unless-stopped flag on the containers",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "enable-registry",
 					Usage: "Start a local Docker registry",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "registry-name",
 					Value: defaultRegistryName,
 					Usage: "Name of the local registry container",
 				},
-				cli.IntFlag{
+				&cli.UintFlag{
 					Name:  "registry-port",
 					Value: defaultRegistryPort,
 					Usage: "Port of the local registry container",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "registry-volume",
 					Usage: "Use a specific volume for the registry storage (will be created if not existing)",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "registries-file",
 					Usage: "registries.yaml config file",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "enable-registry-cache",
 					Usage: "Use the local registry as a cache for the Docker Hub",
 				},
@@ -158,50 +158,50 @@ func main() {
 			Name:  "add-node",
 			Usage: "[EXPERIMENTAL] Add nodes to an existing k3d/k3s cluster (k3d by default)",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "role, r",
 					Usage: "Choose role of the node you want to add [agent|server]",
 					Value: "agent",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Usage: "Name of the k3d cluster that you want to add a node to [only for node name if --k3s is set]",
 					Value: defaultK3sClusterName,
 				},
-				cli.IntFlag{
+				&cli.IntFlag{
 					Name:  "count, c",
 					Usage: "Number of nodes that you want to add",
 					Value: 1,
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "image, i",
 					Usage: "Specify a k3s image (Format: <repo>/<image>:<tag>)",
 					Value: fmt.Sprintf("%s:%s", defaultK3sImage, version.GetK3sVersion()),
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "arg, x",
 					Usage: "Pass arguments to the k3s server/agent command.",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "env, e",
 					Usage: "Pass an additional environment variable (new flag per variable)",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "volume, v",
 					Usage: "Mount one or more volumes into every created node (Docker notation: `source:destination`)",
 				},
 				/*
 				 * Connect to a non-dockerized k3s cluster
 				 */
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "k3s",
 					Usage: "Add a k3d node to a non-k3d k3s cluster (specify k3s server URL like this `https://<host>:<port>`) [requires k3s-secret or k3s-token]",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "k3s-secret, s",
 					Usage: "Specify k3s cluster secret (or use --k3s-token to use a node token)",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "k3s-token, t",
 					Usage: "Specify k3s node token (or use --k3s-secret to use a cluster secret)[overrides k3s-secret]",
 				},
@@ -214,20 +214,20 @@ func main() {
 			Aliases: []string{"d", "del"},
 			Usage:   "Delete cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "name of the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "all, a",
 					Usage: "Delete all existing clusters (this ignores the --name/-n flag)",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "prune",
 					Usage: "Disconnect any other non-k3d containers in the network before deleting the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "keep-registry-volume",
 					Usage: "Do not delete the registry volume",
 				},
@@ -239,12 +239,12 @@ func main() {
 			Name:  "stop",
 			Usage: "Stop cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "all, a",
 					Usage: "Stop all running clusters (this ignores the --name/-n flag)",
 				},
@@ -256,12 +256,12 @@ func main() {
 			Name:  "start",
 			Usage: "Start a stopped cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "all, a",
 					Usage: "Start all stopped clusters (this ignores the --name/-n flag)",
 				},
@@ -280,16 +280,16 @@ func main() {
 			Name:  "get-kubeconfig",
 			Usage: "Get kubeconfig location for cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n",
 					Value: defaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "all, a",
 					Usage: "Get kubeconfig for all clusters (this ignores the --name/-n flag)",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "overwrite, o",
 					Usage: "Overwrite any existing file with the same name",
 				},
@@ -302,12 +302,12 @@ func main() {
 			Aliases: []string{"i"},
 			Usage:   "Import a comma- or space-separated list of container images from your local docker daemon into the cluster",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name, n, cluster, c",
 					Value: defaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "no-remove, no-rm, keep, k",
 					Usage: "Disable automatic removal of the tarball",
 				},
@@ -317,20 +317,21 @@ func main() {
 		{
 			Name:  "version",
 			Usage: "print k3d and k3s version",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				fmt.Println("k3d version", version.GetVersion())
 				fmt.Println("k3s version", version.GetK3sVersion())
+				return nil
 			},
 		},
 	}
 
 	// Global flags
 	app.Flags = []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "verbose",
 			Usage: "Enable verbose output",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "timestamp",
 			Usage: "Enable timestamps in logs messages",
 		},
@@ -338,12 +339,12 @@ func main() {
 
 	// init log level
 	app.Before = func(c *cli.Context) error {
-		if c.GlobalBool("verbose") {
+		if c.Bool("verbose") {
 			log.SetLevel(log.DebugLevel)
 		} else {
 			log.SetLevel(log.InfoLevel)
 		}
-		if c.GlobalBool("timestamp") {
+		if c.Bool("timestamp") {
 			log.SetFormatter(&log.TextFormatter{
 				FullTimestamp: true,
 			})

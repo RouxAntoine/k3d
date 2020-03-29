@@ -16,7 +16,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 // CheckTools checks if the docker API server is responding
@@ -576,7 +576,7 @@ func ImportImage(c *cli.Context) error {
 	if strings.Contains(c.Args().First(), ",") {
 		images = append(images, strings.Split(c.Args().First(), ",")...)
 	} else {
-		images = append(images, c.Args()...)
+		images = append(images, c.Args().Slice()...)
 	}
 	if len(images) == 0 {
 		return fmt.Errorf("No images specified for import")
