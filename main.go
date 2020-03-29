@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	constant "github.com/rancher/k3d/pkg"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -10,12 +11,6 @@ import (
 	run "github.com/rancher/k3d/cli"
 	"github.com/rancher/k3d/version"
 )
-
-// defaultK3sImage specifies the default image being used for server and workers
-const defaultK3sImage = "docker.io/rancher/k3s"
-const defaultK3sClusterName string = "k3s-default"
-const defaultRegistryName = "registry.local"
-const defaultRegistryPort = 5000
 
 // main represents the CLI application
 func main() {
@@ -42,7 +37,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Set a name for the cluster",
 				},
 				cli.StringFlag{
@@ -65,7 +60,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Set a name for the cluster",
 				},
 				cli.StringSliceFlag{
@@ -95,7 +90,7 @@ func main() {
 				cli.StringFlag{
 					Name:  "image, i",
 					Usage: "Specify a k3s image (Format: <repo>/<image>:<tag>)",
-					Value: fmt.Sprintf("%s:%s", defaultK3sImage, version.GetK3sVersion()),
+					Value: fmt.Sprintf("%s:%s", constant.DefaultK3sImage, version.GetK3sVersion()),
 				},
 				cli.StringSliceFlag{
 					Name:  "server-arg, x",
@@ -128,12 +123,12 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "registry-name",
-					Value: defaultRegistryName,
+					Value: constant.DefaultRegistryName,
 					Usage: "Name of the local registry container",
 				},
 				cli.IntFlag{
 					Name:  "registry-port",
-					Value: defaultRegistryPort,
+					Value: int(constant.DefaultRegistryPort),
 					Usage: "Port of the local registry container",
 				},
 				cli.StringFlag{
@@ -166,7 +161,7 @@ func main() {
 				cli.StringFlag{
 					Name:  "name, n",
 					Usage: "Name of the k3d cluster that you want to add a node to [only for node name if --k3s is set]",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 				},
 				cli.IntFlag{
 					Name:  "count, c",
@@ -176,7 +171,7 @@ func main() {
 				cli.StringFlag{
 					Name:  "image, i",
 					Usage: "Specify a k3s image (Format: <repo>/<image>:<tag>)",
-					Value: fmt.Sprintf("%s:%s", defaultK3sImage, version.GetK3sVersion()),
+					Value: fmt.Sprintf("%s:%s", constant.DefaultK3sImage, version.GetK3sVersion()),
 				},
 				cli.StringSliceFlag{
 					Name:  "arg, x",
@@ -189,6 +184,10 @@ func main() {
 				cli.StringSliceFlag{
 					Name:  "volume, v",
 					Usage: "Mount one or more volumes into every created node (Docker notation: `source:destination`)",
+				},
+				&cli.StringFlag{
+					Name:  "auto-restart",
+					Usage: "Set docker's --restart=unless-stopped flag on the containers",
 				},
 				/*
 				 * Connect to a non-dockerized k3s cluster
@@ -216,7 +215,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "name of the cluster",
 				},
 				cli.BoolFlag{
@@ -241,7 +240,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
 				cli.BoolFlag{
@@ -258,7 +257,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
 				cli.BoolFlag{
@@ -282,7 +281,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
 				cli.BoolFlag{
@@ -304,7 +303,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name, n, cluster, c",
-					Value: defaultK3sClusterName,
+					Value: constant.DefaultK3sClusterName,
 					Usage: "Name of the cluster",
 				},
 				cli.BoolFlag{
