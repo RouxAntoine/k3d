@@ -78,11 +78,11 @@ func CreateCluster(ctx context.Context, cluster *k3d.Cluster, runtime k3drt.Runt
 	}
 	cluster.Network.Name = networkID
 	extraLabels := map[string]string{
-		"k3d.cluster.network":          networkID,
-		"k3d.cluster.network.external": strconv.FormatBool(cluster.Network.External),
+		k3d.NetworkLabelName:         networkID,
+		k3d.NetworkExternalLabelName: strconv.FormatBool(cluster.Network.External),
 	}
 	if networkExists {
-		extraLabels["k3d.cluster.network.external"] = "true" // if the network wasn't created, we say that it's managed externally (important for cluster deletion)
+		extraLabels[k3d.NetworkExternalLabelName] = "true" // if the network wasn't created, we say that it's managed externally (important for cluster deletion)
 	}
 
 	/*
@@ -104,7 +104,7 @@ func CreateCluster(ctx context.Context, cluster *k3d.Cluster, runtime k3drt.Runt
 			return err
 		}
 
-		extraLabels["k3d.cluster.imageVolume"] = imageVolumeName
+		extraLabels[k3d.ImageVolumeLabelName] = imageVolumeName
 
 		// attach volume to nodes
 		for _, node := range cluster.Nodes {
@@ -127,7 +127,7 @@ func CreateCluster(ctx context.Context, cluster *k3d.Cluster, runtime k3drt.Runt
 		}
 		node.Labels["k3d.cluster"] = cluster.Name
 		node.Env = append(node.Env, fmt.Sprintf("K3S_TOKEN=%s", cluster.Secret))
-		node.Labels["k3d.cluster.secret"] = cluster.Secret
+		node.Labels[k3d.SecretLabelName] = cluster.Secret
 		node.Labels["k3d.cluster.url"] = connectionURL
 
 		// append extra labels
@@ -409,7 +409,7 @@ func populateClusterFieldsFromLabels(cluster *k3d.Cluster) error {
 
 		// get the name of the cluster network
 		if cluster.Network.Name == "" {
-			if networkName, ok := node.Labels["k3d.cluster.network"]; ok {
+			if networkName, ok := node.Labels[k3d.NetworkLabelName]; ok {
 				cluster.Network.Name = networkName
 			}
 		}
@@ -417,7 +417,7 @@ func populateClusterFieldsFromLabels(cluster *k3d.Cluster) error {
 		// check if the network is external
 		// since the struct value is a bool, initialized as false, we cannot check if it's unset
 		if !cluster.Network.External && !networkExternalSet {
-			if networkExternalString, ok := node.Labels["k3d.cluster.network.external"]; ok {
+			if networkExternalString, ok := node.Labels[k3d.NetworkExternalLabelName]; ok {
 				if networkExternal, err := strconv.ParseBool(networkExternalString); err == nil {
 					cluster.Network.External = networkExternal
 					networkExternalSet = true
@@ -427,7 +427,7 @@ func populateClusterFieldsFromLabels(cluster *k3d.Cluster) error {
 
 		// get image volume // TODO: enable external image volumes the same way we do it with networks
 		if cluster.ImageVolume == "" {
-			if imageVolumeName, ok := node.Labels["k3d.cluster.imageVolume"]; ok {
+			if imageVolumeName, ok := node.Labels[k3d.ImageVolumeLabelName]; ok {
 				cluster.ImageVolume = imageVolumeName
 			}
 		}
@@ -450,9 +450,7 @@ func GetCluster(cluster *k3d.Cluster, runtime k3drt.Runtime) (*k3d.Cluster, erro
 	}
 
 	// append nodes
-	for _, node := range nodes {
-		cluster.Nodes = append(cluster.Nodes, node)
-	}
+	cluster.Nodes = append(cluster.Nodes, nodes...)
 
 	if err := populateClusterFieldsFromLabels(cluster); err != nil {
 		log.Warnf("Failed to populate cluster fields from node labels")

@@ -69,7 +69,11 @@ func NewCmdGetKubeconfig() *cobra.Command {
 				}
 			} else {
 				for _, clusterName := range args {
-					clusters = append(clusters, &k3d.Cluster{Name: clusterName})
+					retrievedCluster, err := cluster.GetCluster(&k3d.Cluster{Name: clusterName}, runtimes.SelectedRuntime)
+					if err != nil {
+						log.Fatalln(err)
+					}
+					clusters = append(clusters, retrievedCluster)
 				}
 			}
 
